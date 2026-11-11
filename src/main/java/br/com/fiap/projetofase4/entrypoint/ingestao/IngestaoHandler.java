@@ -7,9 +7,11 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
+import br.com.fiap.projetofase4.domain.exception.AvaliacaoInvalidaException;
+import br.com.fiap.projetofase4.domain.model.Urgencia;
 
-import java.time.Instant;
-import java.time.LocalDate;
+
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 
 import software.amazon.awssdk.core.exception.SdkException;
@@ -46,8 +48,9 @@ public class IngestaoHandler implements RequestHandler<APIGatewayV2HTTPEvent, AP
 
         AvaliacaoRequest req;
         String id = UUID.randomUUID().toString();
-        String dataEnvio = Instant.now().toString();
-        String dia = LocalDate.now(ZoneId.of("America/Sao_Paulo")).toString();
+        OffsetDateTime agora = OffsetDateTime.now(ZoneId.of("America/Sao_Paulo"));
+        String dataEnvio = agora.toString();
+        String dia = agora.toString();
         
         try {
             req = mapper.readValue(corpo, AvaliacaoRequest.class);
@@ -59,14 +62,22 @@ public class IngestaoHandler implements RequestHandler<APIGatewayV2HTTPEvent, AP
             return resposta(400,"descricao é obrigatória");
         }
 
-        if (req.nota() == null || req.nota() < 0 || req.nota() > 10){
+        if (req.nota() == null){
             return resposta(400,"nota deve estar entre 0 e 10");
         }
 
+        Urgencia urgencia;
+        try{
+            urgencia = Urgencia.deNota(req.nota());
+        } catch (AvaliacaoInvalidaException e){
+            return resposta(400, e.getMessage());
+        }
+ 
         try{
             
             dynamo.putItem(PutItemRequest.builder().tableName("avaliacoes").item(Map.of(
             "id",AttributeValue.fromS(id),
+            "urgencia",AttributeValue.fromS(urgencia.name()),
             "descricao",AttributeValue.fromS(req.descricao()),
             "nota",AttributeValue.fromN(String.valueOf(req.nota())),
             "dataEnvio",AttributeValue.fromS(dataEnvio),
@@ -78,7 +89,7 @@ public class IngestaoHandler implements RequestHandler<APIGatewayV2HTTPEvent, AP
             context.getLogger().log("erro ao gravar a avaliacao: " + id +" "+ e);
             return resposta(500,"Erro ao gravar a avaliacao");
         }
-        return resposta(201,"Avaliação registrada: "+id);        
+        return resposta(201,"Avaliação registrada: "+id + " (" + urgencia + ")");        
     }
     
 }
