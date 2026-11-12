@@ -6,7 +6,6 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 import br.com.fiap.projetofase4.domain.exception.AvaliacaoInvalidaException;
 import br.com.fiap.projetofase4.domain.model.Urgencia;
 
