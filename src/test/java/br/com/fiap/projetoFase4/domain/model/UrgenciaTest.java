@@ -1,4 +1,4 @@
-package br.com.fiap.projetoFase4.domain.model;
+package br.com.fiap.projetofase4.domain.model;
 
 import br.com.fiap.projetofase4.domain.exception.AvaliacaoInvalidaException;
 import br.com.fiap.projetofase4.domain.model.Urgencia;

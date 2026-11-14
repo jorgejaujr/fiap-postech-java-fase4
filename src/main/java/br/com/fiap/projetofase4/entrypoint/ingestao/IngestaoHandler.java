@@ -49,7 +49,7 @@ public class IngestaoHandler implements RequestHandler<APIGatewayV2HTTPEvent, AP
         String id = UUID.randomUUID().toString();
         OffsetDateTime agora = OffsetDateTime.now(ZoneId.of("America/Sao_Paulo"));
         String dataEnvio = agora.toString();
-        String dia = agora.toString();
+        String dia = agora.toLocalDate().toString();
         
         try {
             req = mapper.readValue(corpo, AvaliacaoRequest.class);
