@@ -7,7 +7,8 @@
 
 Plataforma **serverless na AWS** para receber avaliações de aulas, avisar os administradores por e-mail quando uma avaliação é crítica e enviar um relatório semanal consolidado. Projeto do **Tech Challenge da Fase 4** da pós-graduação em Arquitetura de Sistemas em Java (FIAP Postech).
 
-> **Vídeo de demonstração:** **https://youtu.be/lgmgmVumBzc**
+> **Vídeo de demonstração:** **https://youtu.be/lgmgmVumBzc**<br>
+  **repositório:** **https://github.com/jorgejaujr/fiap-postech-java-fase4**
 
 ---
 
