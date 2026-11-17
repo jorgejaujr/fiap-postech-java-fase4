@@ -7,7 +7,7 @@
 
 Plataforma **serverless na AWS** para receber avaliações de aulas, avisar os administradores por e-mail quando uma avaliação é crítica e enviar um relatório semanal consolidado. Projeto do **Tech Challenge da Fase 4** da pós-graduação em Arquitetura de Sistemas em Java (FIAP Postech).
 
-> **Vídeo de demonstração:** **[PREENCHER: link do vídeo (YouTube não listado ou Drive com acesso "qualquer pessoa com o link")]**
+> **Vídeo de demonstração:** **https://youtu.be/lgmgmVumBzc**
 
 ---
 
@@ -687,7 +687,7 @@ A organização segue a **Clean Architecture**: o domínio não conhece a AWS, o
 
 ## 13. Equipe e licença
 
-**Equipe: Grupo 17** <br>
+**Equipe:** <br>
 * **Gustavo Roseira Nunes - RM370333**<br>
 * **Jorge Ricardo Jaú Junior - RM370999**<br>
 * **Rafael Moura Gonçalves - RM371156**<br>
