@@ -16,25 +16,33 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Handler Lambda que escuta o stream do DynamoDB e envia notificações via Amazon SNS
- * sempre que um novo item é inserido na tabela de avaliações.
- *
- * Para cada registro do tipo INSERT recebido no stream, a classe extrai os campos
- * relevantes da nova imagem (id, urgencia, descricao e dataEnvio,
- * monta um e-mail estruturado e o publica no tópico SNS definido pela variável de ambiente TOPIC_ARN.
- *
- * Variáveis de ambiente obrigatórias:
- 
- *   {@code TOPIC_ARN} – ARN do tópico SNS que receberá as notificações.
- * 
- *
- * Permissões IAM necessárias:
- * 
- *   {@code sns:Publish} no tópico configurado.
- *   {@code dynamodb:GetRecords}, {@code dynamodb:GetShardIterator},
- *   {@code dynamodb:DescribeStream} e {@code dynamodb:ListStreams} na tabela de origem.
- * 
- */
+* Handler Lambda que escuta o stream do DynamoDB e envia, via Amazon SNS, o e-mail de urgência
+* para os administradores.
+*
+* <p>O gatilho da função tem um <b>filtro de evento</b>: só chegam registros {@code INSERT} com
+* {@code urgencia = CRITICA}. Avaliações médias e baixas nem invocam esta função. Para cada
+* registro recebido, a classe extrai da nova imagem do item os campos {@code id},
+* {@code urgencia}, {@code descricao} e {@code dataEnvio}, monta um e-mail estruturado e o
+* publica no tópico SNS definido pela variável de ambiente {@code TOPIC_ARN}.
+*
+* <p><b>Variáveis de ambiente obrigatórias:</b>
+* <ul>
+*   <li>{@code TOPIC_ARN} – ARN do tópico SNS que receberá as notificações.</li>
+* </ul>
+*
+* <p><b>Permissões IAM necessárias:</b>
+* <ul>
+*   <li>{@code sns:Publish} no tópico configurado;</li>
+*   <li>{@code dynamodb:GetRecords}, {@code dynamodb:GetShardIterator},
+*       {@code dynamodb:DescribeStream} e {@code dynamodb:ListStreams} no stream da tabela
+*       de origem.</li>
+* </ul>
+*
+* <p><b>Configuração recomendada do gatilho:</b> tamanho do lote 1 (evita reenviar e-mails já
+* entregues quando há nova tentativa), no máximo 2 tentativas e idade máxima do registro de
+* 1 hora (evita que um registro problemático trave o stream).
+*/
+
 public class NotificacaoHandler implements RequestHandler<DynamodbEvent, Void> {
 
     /** Cliente SNS criado com as credenciais do ambiente de execução da Lambda. */
@@ -44,19 +52,24 @@ public class NotificacaoHandler implements RequestHandler<DynamodbEvent, Void> {
     private final String topicArn = System.getenv("TOPIC_ARN");
     
     /**
-     * Processa os registros do stream do DynamoDB e publica uma notificação SNS
-     * para cada avaliação inserida.
-     *
-     * Registros sem {@code id} são silenciosamente ignorados. Campos ausentes
-     * ({@code urgencia}, {@code descricao}, {@code dataEnvio}) recebem valores padrão
-     * para que o envio nunca seja bloqueado por dados incompletos.
-     *
-     * @param event   evento recebido do DynamoDB Streams, contendo um ou mais registros
-     * @param context contexto de execução da Lambda, utilizado para logging
-     * @return {@code null}, conforme exigido pelo tipo de retorno {@code Void}
-     * @throws IllegalStateException se a variável de ambiente {@code TOPIC_ARN} não estiver configurada
-     * @throws software.amazon.awssdk.core.exception.SdkException se a publicação no SNS falhar
-     */
+    * Processa os registros do stream do DynamoDB e publica uma notificação SNS para cada
+    * avaliação recebida.
+    *
+    * <p>Registros sem {@code id} são registrados em log e ignorados, pois não há como
+    * identificar o alerta e repetir o processamento não resolveria. Campos ausentes
+    * ({@code urgencia}, {@code descricao}, {@code dataEnvio}) recebem valores padrão, para que
+    * o envio nunca seja bloqueado por dados incompletos. A data é exibida no formato
+    * {@code dd/MM/yyyy HH:mm}, no fuso de São Paulo.
+    *
+    * <p>Se a publicação no SNS falhar, o erro é registrado e <b>relançado</b>, para que a
+    * falha conte na métrica de erros (que alimenta o alarme) e o Lambda possa tentar de novo.
+    *
+    * @param event   evento recebido do DynamoDB Streams, com um ou mais registros
+    * @param context contexto de execução da Lambda, usado para logging
+    * @return {@code null}, conforme exigido pelo tipo de retorno {@code Void}
+    * @throws IllegalStateException se a variável de ambiente {@code TOPIC_ARN} não estiver configurada
+    * @throws SdkException          se a publicação no SNS falhar
+    */
     @Override
     public Void handleRequest(DynamodbEvent event, Context context) {
         if(topicArn == null || topicArn.isBlank()){

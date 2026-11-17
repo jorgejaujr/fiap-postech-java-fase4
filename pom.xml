@@ -5,20 +5,28 @@
 	<groupId>br.com.fiap</groupId>
 	<artifactId>projetoFase4</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
-	<description/>
-	<url/>
+	<name>Plataforma de Feedback de Aulas</name>
+	<description>Tech Challenge Fase 4 (FIAP Postech): plataforma serverless de feedback de aulas na AWS, com ingestão, notificação de avaliações críticas e relatório semanal.</description>
+	<url>https://github.com/jorgejaujr/fiap-postech-java-fase4</url>
 	<licenses>
-		<license/>
+    <license>
+			<name>GNU General Public License v3.0</name>
+			<url>https://www.gnu.org/licenses/gpl-3.0.html</url>
+			<distribution>repo</distribution>
+		</license>
 	</licenses>
 	<developers>
-		<developer/>
+		<developer><name>Gustavo Roseira Nunes</name></developer>
+		<developer><name>Jorge Ricardo Jaú Junior</name></developer>
+		<developer><name>Rafael Moura Gonçalves</name></developer>
+		<developer><name>Everton Mota da Costa</name></developer>
+		<developer><name>Edvaldo Batista de Albuquerque Júnior</name></developer>
 	</developers>
 	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
+		<connection>scm:git:https://github.com/jorgejaujr/fiap-postech-java-fase4.git</connection>
+		<developerConnection>scm:git:git@github.com:jorgejaujr/fiap-postech-java-fase4.git</developerConnection>
+		<tag>HEAD</tag>
+		<url>https://github.com/jorgejaujr/fiap-postech-java-fase4</url>
 	</scm>
 	<properties>
 		<maven.compiler.release>21</maven.compiler.release>
@@ -32,7 +40,7 @@
 			<artifactId>aws-lambda-java-core</artifactId>
 			<version>1.2.3</version>
 		</dependency>
-		<!-- Lambda Events (APIGatewayProxyRequest, etc.) -->
+		<!-- Lambda Events (API Gateway HTTP API e DynamoDB Streams) -->
 		<dependency>
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-lambda-java-events</artifactId>
@@ -86,7 +94,7 @@
 				</executions>
 			</plugin>
 			<plugin>
-            <groupId>org.apache.maven.plugins</groupId>
+            	<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.13.0</version>
 				<configuration>
